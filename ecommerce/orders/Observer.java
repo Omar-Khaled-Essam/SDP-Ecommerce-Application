@@ -1,5 +1,5 @@
 package orders;
 
 public interface Observer {
-    void update(String status);
+    void update(OrderStatus status);
 }
