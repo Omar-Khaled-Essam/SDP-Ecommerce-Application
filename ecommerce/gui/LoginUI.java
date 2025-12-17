@@ -11,55 +11,44 @@ import users.*;
 
 public class LoginUI extends Application {
 
-    @Override
     public void start(Stage stage) {
 
-        Database db = Database.getInstance();
-        db.seedUsers();
-        db.seedProducts();
+        Database.getInstance().seedProducts();
 
-        Label title = new Label("E-Commerce Login");
+        TextField user = new TextField();
+        user.setPromptText("Username");
 
-        TextField userField = new TextField();
-        userField.setPromptText("Username");
+        PasswordField pass = new PasswordField();
+        pass.setPromptText("Password");
 
-        PasswordField passField = new PasswordField();
-        passField.setPromptText("Password");
+        Label msg = new Label();
 
-        Label message = new Label();
+        Button login = new Button("Login");
+        Button register = new Button("Register");
 
-        Button loginBtn = new Button("Login");
-
-        loginBtn.setOnAction(e -> {
-            String username = userField.getText();
-            String password = passField.getText();
-
-            User user = db.authenticate(username, password);
-
-            if (user == null) {
-                message.setText("Invalid username or password");
+        login.setOnAction(e -> {
+            User u = Database.getInstance().authenticate(user.getText(), pass.getText());
+            if (u == null) {
+                msg.setText("Invalid credentials");
                 return;
             }
-
             stage.close();
-
             try {
-                if (user instanceof Admin) {
+                if (u instanceof Admin)
                     new AdminDashboard().start(new Stage());
-                } else if (user instanceof Customer) {
-                   new CustomerDashboard().start(new Stage());
-
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+                else
+                    new CustomerDashboard().start(new Stage());
+            } catch (Exception ex) {}
         });
 
-        VBox root = new VBox(10, title, userField, passField, loginBtn, message);
-        root.setStyle("-fx-padding: 20");
+        register.setOnAction(e -> {
+            stage.close();
+            try { new RegisterUI().start(new Stage()); } catch (Exception ex) {}
+        });
 
+        VBox root = new VBox(10, user, pass, login, register, msg);
+        root.setStyle("-fx-padding:20");
         stage.setScene(new Scene(root, 300, 250));
-        stage.setTitle("Login");
         stage.show();
     }
 

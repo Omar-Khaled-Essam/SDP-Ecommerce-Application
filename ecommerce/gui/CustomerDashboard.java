@@ -6,62 +6,28 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import database.Database;
-import products.*;
+import products.Product;
 
 public class CustomerDashboard {
 
-    private ListView<String> productList;
-
     public void start(Stage stage) {
 
-        Label title = new Label("Customer Dashboard");
-
-        productList = new ListView<>();
-        productList.setPrefHeight(200);   // ⭐ CRITICAL (otherwise invisible)
-
-        loadProducts(); // ⭐ MUST be called AFTER ListView creation
-
-        Button placeOrderBtn = new Button("Place Order");
-
-        Button logoutBtn = new Button("Logout");
-        logoutBtn.setOnAction(e -> {
-            stage.close();
-            try {
-                new LoginUI().start(new Stage());
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        });
-
-        VBox layout = new VBox(10);
-        layout.getChildren().addAll(
-                title,
-                productList,
-                placeOrderBtn,
-                logoutBtn
-        );
-        layout.setStyle("-fx-padding: 20");
-
-        stage.setScene(new Scene(layout, 400, 350));
-        stage.setTitle("Customer");
-        stage.show();
-    }
-
-    // -----------------------------
-    // LOAD PRODUCTS FROM DATABASE
-    // -----------------------------
-    private void loadProducts() {
-        productList.getItems().clear();
+        ListView<String> list = new ListView<>();
+        list.setPrefHeight(200);
 
         for (Product p : Database.getInstance().getProducts()) {
-            productList.getItems().add(
-                    p.getName() + " | $" + p.getPrice() + " | Stock: " + p.getStock()
-            );
+            list.getItems().add(p.getName() + " $" + p.getPrice());
         }
 
-        // Debug safety check
-        if (productList.getItems().isEmpty()) {
-            productList.getItems().add("No products available");
-        }
+        Button logout = new Button("Logout");
+        logout.setOnAction(e -> {
+            stage.close();
+            try { new LoginUI().start(new Stage()); } catch (Exception ex) {}
+        });
+
+        VBox root = new VBox(10, list, logout);
+        root.setStyle("-fx-padding:20");
+        stage.setScene(new Scene(root, 350, 300));
+        stage.show();
     }
 }

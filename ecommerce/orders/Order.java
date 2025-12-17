@@ -1,42 +1,27 @@
 package orders;
 
-import java.util.*;
-import products.*;
+import users.Customer;
+import products.Product;
+import java.util.List;
 
-public class Order implements Subject {
+public class Order {
 
-    private String status = "Pending";
-    private Product product;
-    private int quantity = 1;
+    private Customer customer;
+    private List<Product> products;
+    private OrderStatus status;
+    private double total;
 
-    private List<Observer> observers = new ArrayList<>();
-
-    public Order(Product product) {
-        this.product = product;
+    public Order(Customer c, List<Product> p, double t) {
+        customer = c;
+        products = p;
+        total = t;
+        status = OrderStatus.PENDING;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
-        notifyObservers();
+    public void setStatus(OrderStatus s) {
+        status = s;
+        customer.update(s);
     }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public double getTotalAmount() {
-        return product.getPrice() * quantity;
-    }
-
-    @Override
-    public void attach(Observer o) {
-        observers.add(o);
-    }
-
-    @Override
-    public void notifyObservers() {
-        for (Observer o : observers) {
-            o.update(status);
-        }
-    }
+    public double getTotal() { return total; }
 }

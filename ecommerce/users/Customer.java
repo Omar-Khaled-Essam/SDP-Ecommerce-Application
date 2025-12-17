@@ -1,33 +1,20 @@
 package users;
 
-import java.util.*;
-import orders.*;
-import products.*;
+import orders.OrderStatus;
 
-public class Customer extends User implements orders.Observer {
+public class Customer extends User {
 
-    private List<Order> orderHistory = new ArrayList<>();
-    private List<Product> cart = new ArrayList<>();
+    private double totalSpent = 0;
 
-    public Customer(String username, String password) {
-        super(username, password);
+    public Customer(String u, String p) {
+        super(u, p);
     }
 
-    @Override
-    public void update(String status) {
-        System.out.println("[Notification] Order status changed to: " + status);
+    public void update(OrderStatus status) {
+        System.out.println("Order status changed to: " + status);
     }
 
-    public void addOrder(Order order) {
-        orderHistory.add(order);
-    }
-
-    public void addToCart(Product product) {
-        cart.add(product);
-        System.out.println(product.getName() + " added to cart.");
-    }
-
-    public List<Product> getCart() {
-        return cart;
+    public void addSpent(double amount) {
+        totalSpent += amount;
     }
 }

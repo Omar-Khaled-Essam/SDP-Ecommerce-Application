@@ -12,50 +12,26 @@ public class AdminDashboard {
 
     public void start(Stage stage) {
 
-        Label title = new Label("Admin Dashboard");
+        Button addE = new Button("Add Electronics");
+        Button addC = new Button("Add Clothing");
 
-        Button addElectronics = new Button("Add Electronics");
-        Button addClothing = new Button("Add Clothing");
-
-        addElectronics.setOnAction(e -> {
-            Product p = new ElectronicsFactory().createProduct();
-            Database.getInstance().getProducts().add(p);
-            showAlert("Electronics added");
-        });
-
-        addClothing.setOnAction(e -> {
-            Product p = new ClothingFactory().createProduct();
-            Database.getInstance().getProducts().add(p);
-            showAlert("Clothing added");
-        });
-
-        Button logoutBtn = new Button("Logout");
-        logoutBtn.setOnAction(e -> {
-            stage.close();
-            try {
-                new LoginUI().start(new Stage());
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        });
-
-        VBox layout = new VBox(10);
-        layout.getChildren().addAll(
-                title,
-                addElectronics,
-                addClothing,
-                logoutBtn
+        addE.setOnAction(e ->
+            Database.getInstance().getProducts().add(new ElectronicsFactory().createProduct())
         );
-        layout.setStyle("-fx-padding: 20");
 
-        stage.setScene(new Scene(layout, 300, 250));
-        stage.setTitle("Admin");
+        addC.setOnAction(e ->
+            Database.getInstance().getProducts().add(new ClothingFactory().createProduct())
+        );
+
+        Button logout = new Button("Logout");
+        logout.setOnAction(e -> {
+            stage.close();
+            try { new LoginUI().start(new Stage()); } catch (Exception ex) {}
+        });
+
+        VBox root = new VBox(10, addE, addC, logout);
+        root.setStyle("-fx-padding:20");
+        stage.setScene(new Scene(root, 300, 250));
         stage.show();
-    }
-
-    private void showAlert(String msg) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setContentText(msg);
-        alert.show();
     }
 }

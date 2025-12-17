@@ -1,9 +1,10 @@
 package database;
 
-import java.util.*;
 import users.*;
 import products.*;
 import orders.*;
+
+import java.util.*;
 
 public class Database {
 
@@ -21,50 +22,23 @@ public class Database {
         return instance;
     }
 
-    public List<User> getUsers() { return users; }
+    public void registerUser(User u) {
+        users.add(u);
+    }
+
+    public User authenticate(String u, String p) {
+        return users.stream()
+                .filter(x -> x.getUsername().equals(u) && x.getPassword().equals(p))
+                .findFirst().orElse(null);
+    }
+
     public List<Product> getProducts() { return products; }
     public List<Order> getOrders() { return orders; }
-
-    // ----------------------------
-    // INITIAL DATA
-    // ----------------------------
-    public void seedUsers() {
-        if (users.isEmpty()) {
-            users.add(new Admin("admin", "admin123"));
-            users.add(new Customer("omar", "pass"));
-        }
-    }
 
     public void seedProducts() {
         if (products.isEmpty()) {
             products.add(new Electronics("Laptop", 1200, 10));
-            products.add(new Electronics("Phone", 800, 15));
-            products.add(new Clothing("T-Shirt", 25, 50));
-            products.add(new Clothing("Jacket", 60, 20));
+            products.add(new Clothing("Jacket", 80, 15));
         }
-    }
-
-    // ----------------------------
-    // LOGIN AUTH
-    // ----------------------------
-    public User authenticate(String username, String password) {
-        for (User u : users) {
-            if (u.getUsername().equals(username) &&
-                u.getPassword().equals(password)) {
-                return u;
-            }
-        }
-        return null;
-    }
-
-    // ----------------------------
-    // SALES REPORT
-    // ----------------------------
-    public double getTotalSales() {
-        double total = 0;
-        for (Order o : orders) {
-            total += o.getTotalAmount();
-        }
-        return total;
     }
 }
