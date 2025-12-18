@@ -11,6 +11,7 @@ import users.*;
 
 public class LoginUI extends Application {
 
+    @Override
     public void start(Stage stage) {
 
         Database.getInstance().seedProducts();
@@ -35,10 +36,12 @@ public class LoginUI extends Application {
             stage.close();
             try {
                 if (u instanceof Admin)
-                    new AdminDashboard().start(new Stage());
+                    new AdminDashboard((Admin) u).start(new Stage());
                 else
-                    new CustomerDashboard().start(new Stage());
-            } catch (Exception ex) {}
+                    new CustomerDashboard((Customer) u).start(new Stage());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         });
 
         register.setOnAction(e -> {

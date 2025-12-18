@@ -1,30 +1,42 @@
 package orders;
 
-import users.Customer;
 import products.Product;
-import java.util.List;
+import users.Customer;
+import java.util.*;
 
 public class Order {
 
     private Customer customer;
-    private List<Product> items;
-    private OrderStatus status;
+    private List<Product> products;
     private double total;
+    private String status = "Pending";
 
-    public Order(Customer c, List<Product> items, double total) {
-        this.customer = c;
-        this.items = items;
+    private List<Observer> observers = new ArrayList<>();
+
+    public Order(Customer customer, List<Product> products, double total) {
+        this.customer = customer;
+        this.products = products;
         this.total = total;
-        this.status = OrderStatus.PENDING;
+        attach(customer);
     }
 
-    public void setStatus(OrderStatus s) {
-        status = s;
-        customer.update(s); // Observer notification
+    public void attach(Observer o) {
+        observers.add(o);
     }
 
-    public OrderStatus getStatus() { return status; }
+    private void notifyObservers() {
+        for (Observer o : observers) {
+            o.update(status);
+        }
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+        notifyObservers();
+    }
+
+    public String getStatus() { return status; }
     public double getTotal() { return total; }
     public Customer getCustomer() { return customer; }
-    public List<Product> getItems() { return items; }
+    public List<Product> getProducts() { return products; }
 }

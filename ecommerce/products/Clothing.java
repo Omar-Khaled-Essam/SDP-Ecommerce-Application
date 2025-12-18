@@ -1,7 +1,35 @@
 package products;
 
-public class Clothing extends Product {
-    public Clothing(String n, double p, int s) {
-        super(n, "Clothing", p, s, "");
+public class Clothing implements Product {
+
+    private String name;
+    private String category;
+    private double price;
+    private int stock;
+    private String description;
+
+    public Clothing(String name, String category,
+                    double price, int stock, String description) {
+        this.name = name;
+        this.category = category;
+        this.price = price;
+        this.stock = stock;
+        this.description = description;
+    }
+
+    public String getName() { return name; }
+    public String getCategory() { return category; }
+    public double getPrice() { return price; }
+    public int getStock() { return stock; }
+    public String getDescription() { return description; }
+
+    @Override
+    public void reduceStock(int qty) {
+        stock -= qty;
+    }
+
+    @Override
+    public String toString() {
+        return name + " | " + category + " | " + price + " | Stock: " + stock;
     }
 }

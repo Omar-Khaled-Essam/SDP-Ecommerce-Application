@@ -1,7 +1,15 @@
 package products;
 
 public class ElectronicsFactory implements ProductFactory {
+
+    @Override
     public Product createProduct() {
-        return new Electronics("Laptop", 1200, 10);
+        return new Electronics(
+                "Default Laptop",
+                "Electronics",
+                15000,
+                10,
+                "Factory default electronics product"
+        );
     }
 }

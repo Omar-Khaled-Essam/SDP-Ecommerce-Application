@@ -10,7 +10,7 @@ public class OrderBuilder {
     private List<Product> products = new ArrayList<>();
 
     public OrderBuilder setCustomer(Customer c) {
-        customer = c;
+        this.customer = c;
         return this;
     }
 
@@ -24,4 +24,3 @@ public class OrderBuilder {
         return new Order(customer, products, total);
     }
 }
-

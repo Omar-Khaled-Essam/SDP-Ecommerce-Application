@@ -13,7 +13,10 @@ public class RegisterUI {
     public void start(Stage stage) {
 
         TextField user = new TextField();
+        user.setPromptText("Username");
+
         PasswordField pass = new PasswordField();
+        pass.setPromptText("Password");
 
         ChoiceBox<String> role = new ChoiceBox<>();
         role.getItems().addAll("Admin", "Customer");
@@ -34,4 +37,3 @@ public class RegisterUI {
         stage.show();
     }
 }
-
