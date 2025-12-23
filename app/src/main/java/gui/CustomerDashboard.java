@@ -53,6 +53,9 @@ public class CustomerDashboard {
         Button removeBtn = new Button("Remove from Cart");
         Button checkoutBtn = new Button("Checkout");
         Label totalLabel = new Label("Total: 0");
+        Button refreshOrdersBtn = new Button("Refresh Orders");
+        Button trackStatusBtn = new Button("Track Status");
+        Button purchaseHistoryBtn = new Button("Purchase History");
 
 
         ChoiceBox<String> paymentMethod = new ChoiceBox<>();
@@ -136,10 +139,9 @@ public class CustomerDashboard {
         stage.focusedProperty().addListener((obs, was, isNow) -> {
             if (isNow) refreshOrders(orderHistory);
         });
-        Button refreshOrdersBtn = new Button("Refresh Orders");
-        Button trackStatusBtn = new Button("Track Status");
         refreshOrdersBtn.setOnAction(e -> refreshOrders(orderHistory));
         trackStatusBtn.setOnAction(e -> new OrderTrackingWindow(customer.getUsername()).show());
+        purchaseHistoryBtn.setOnAction(e -> new PurchaseHistoryWindow(customer.getUsername()).show());
 
         VBox layout = new VBox(10,
                 new Label("Products"),
@@ -154,7 +156,7 @@ public class CustomerDashboard {
                 checkoutBtn,
                 new Label("Order History"),
                 orderHistory,
-                new HBox(5, refreshOrdersBtn, trackStatusBtn),
+                new HBox(5, refreshOrdersBtn, trackStatusBtn, purchaseHistoryBtn),
                 logout   // ?? added here
         );
 
