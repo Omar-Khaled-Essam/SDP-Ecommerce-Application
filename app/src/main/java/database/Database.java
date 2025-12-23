@@ -67,6 +67,9 @@ public class Database {
     public List<Order> getOrdersByCustomer(String username) {
         return adapter.getOrdersByCustomer(username);
     }
+    public double getTotalSpentForCustomer(String username) {
+        return adapter.getTotalSpentForCustomer(username);
+    }
 
     public void updateOrderStatus(Order order, String status) {
         adapter.updateOrderStatus(order, status);

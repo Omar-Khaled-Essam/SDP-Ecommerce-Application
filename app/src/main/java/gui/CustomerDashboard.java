@@ -137,7 +137,9 @@ public class CustomerDashboard {
             if (isNow) refreshOrders(orderHistory);
         });
         Button refreshOrdersBtn = new Button("Refresh Orders");
+        Button trackStatusBtn = new Button("Track Status");
         refreshOrdersBtn.setOnAction(e -> refreshOrders(orderHistory));
+        trackStatusBtn.setOnAction(e -> new OrderTrackingWindow(customer.getUsername()).show());
 
         VBox layout = new VBox(10,
                 new Label("Products"),
@@ -152,7 +154,7 @@ public class CustomerDashboard {
                 checkoutBtn,
                 new Label("Order History"),
                 orderHistory,
-                refreshOrdersBtn,
+                new HBox(5, refreshOrdersBtn, trackStatusBtn),
                 logout   // ?? added here
         );
 

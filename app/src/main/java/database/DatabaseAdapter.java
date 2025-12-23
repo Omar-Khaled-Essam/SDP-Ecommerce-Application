@@ -36,6 +36,7 @@ public interface DatabaseAdapter {
 
     double getTotalSales();
     double getTotalSalesBetween(LocalDate start, LocalDate end);
+    double getTotalSpentForCustomer(String username);
 
     void updatePassword(String username, String newPassword);
     void deleteUser(String username);

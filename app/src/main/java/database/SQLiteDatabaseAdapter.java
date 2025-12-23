@@ -426,6 +426,21 @@ public class SQLiteDatabaseAdapter implements DatabaseAdapter {
     }
 
     @Override
+    public double getTotalSpentForCustomer(String username) {
+        String sql = "SELECT SUM(total) as total FROM orders WHERE customer = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getDouble("total");
+            }
+        } catch (SQLException e) {
+            // ignore
+        }
+        return 0;
+    }
+
+    @Override
     public List<Product> getLowStock(int threshold) {
         List<Product> list = new ArrayList<>();
         String sql = "SELECT name, category, price, stock, description FROM products WHERE stock <= ?";
