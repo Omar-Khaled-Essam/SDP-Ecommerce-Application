@@ -34,6 +34,16 @@ public class Database {
         return null;
     }
 
+    public List<Customer> getCustomers() {
+        List<Customer> customers = new ArrayList<>();
+        for (User u : users) {
+            if (u instanceof Customer) {
+                customers.add((Customer) u);
+            }
+        }
+        return customers;
+    }
+
     // ---------- PRODUCTS ----------
     public List<Product> getProducts() {
         return products;

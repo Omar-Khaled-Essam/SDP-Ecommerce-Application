@@ -9,6 +9,7 @@ import database.Database;
 import products.*;
 import orders.*;
 import users.Admin;
+import users.Customer;
 
 public class AdminDashboard {
 
@@ -72,7 +73,48 @@ public class AdminDashboard {
             }
         });
 
-        // ✅ LOGOUT BUTTON (ONLY ADDITION)
+        // ---------- CUSTOMER MANAGEMENT ----------
+        ListView<Customer> customerList = new ListView<>();
+        customerList.getItems().addAll(Database.getInstance().getCustomers());
+
+        Label customerDetails = new Label("Select a customer to view details.");
+        ListView<Order> customerOrders = new ListView<>();
+        Button viewOrderDetails = new Button("View Selected Order Details");
+
+        customerList.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            customerOrders.getItems().clear();
+            if (newVal == null) {
+                customerDetails.setText("Select a customer to view details.");
+                return;
+            }
+            customerDetails.setText(
+                    "Username: " + newVal.getUsername() +
+                    " | Orders: " + newVal.getOrderHistory().size() +
+                    " | Total Spent: " + newVal.getTotalSpent()
+            );
+            customerOrders.getItems().addAll(newVal.getOrderHistory());
+        });
+
+        viewOrderDetails.setOnAction(e -> {
+            Order o = customerOrders.getSelectionModel().getSelectedItem();
+            if (o == null) {
+                new Alert(Alert.AlertType.INFORMATION, "Select an order first.").show();
+                return;
+            }
+            StringBuilder details = new StringBuilder();
+            details.append("Status: ").append(o.getStatus()).append("\n");
+            details.append("Total: ").append(o.getTotal()).append("\n");
+            details.append("Products:\n");
+            for (Product p : o.getProducts()) {
+                details.append("- ").append(p.getName())
+                        .append(" (").append(p.getPrice()).append(")\n");
+            }
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, details.toString());
+            alert.setHeaderText("Order Details");
+            alert.show();
+        });
+
+        // ? LOGOUT BUTTON (ONLY ADDITION)
         Button logout = new Button("Logout");
         logout.setOnAction(e -> {
             stage.close();
@@ -89,6 +131,13 @@ public class AdminDashboard {
                 new Separator(),
                 new Label("Order Management"),
                 orderList, statusBox, updateStatus,
+                new Separator(),
+                new Label("Customer Management"),
+                customerList,
+                customerDetails,
+                new Label("Order History"),
+                customerOrders,
+                viewOrderDetails,
                 new Separator(),
                 logout   // 👈 added here
         );

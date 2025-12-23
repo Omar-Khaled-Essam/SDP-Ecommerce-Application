@@ -38,6 +38,10 @@ public class Customer extends User implements Observer {
         return orderHistory;
     }
 
+    public double getTotalSpent() {
+        return orderHistory.stream().mapToDouble(Order::getTotal).sum();
+    }
+
     @Override
     public void update(String status) {
         System.out.println("Order updated: " + status);
