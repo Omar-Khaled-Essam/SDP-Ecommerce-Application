@@ -6,6 +6,7 @@ import java.util.*;
 
 public class Order {
 
+    private Integer id;
     private Customer customer;
     private List<Product> products;
     private double total;
@@ -19,6 +20,9 @@ public class Order {
         this.total = total;
         attach(customer);
     }
+
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
 
     public void attach(Observer o) {
         observers.add(o);
@@ -39,4 +43,10 @@ public class Order {
     public double getTotal() { return total; }
     public Customer getCustomer() { return customer; }
     public List<Product> getProducts() { return products; }
+
+    @Override
+    public String toString() {
+        String idPart = (id != null) ? ("#" + id + " ") : "";
+        return idPart + "Order - " + status + " - Total: " + total;
+    }
 }

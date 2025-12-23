@@ -48,12 +48,13 @@ public class CustomerDashboard {
                     total
             );
 
-            Database.getInstance().getOrders().add(order);
+            Database.getInstance().addOrder(order);
             customer.addOrder(order);
             customer.clearCart();
             cartList.getItems().clear();
 
             new Alert(Alert.AlertType.INFORMATION, "Order Placed!").show();
+            productList.getItems().setAll(Database.getInstance().getProducts());
         });
 
         // ✅ LOGOUT BUTTON (ONLY ADDITION)

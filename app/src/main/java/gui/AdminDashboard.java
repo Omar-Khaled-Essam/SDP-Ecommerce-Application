@@ -23,7 +23,7 @@ public class AdminDashboard {
 
         // ---------- PRODUCT MANAGEMENT ----------
         ListView<Product> productList = new ListView<>();
-        productList.getItems().addAll(Database.getInstance().getProducts());
+        refreshProducts(productList);
 
         TextField name = new TextField();
         name.setPromptText("Name");
@@ -45,21 +45,21 @@ public class AdminDashboard {
                     Integer.parseInt(stock.getText()),
                     "Admin Added"
             );
-            Database.getInstance().getProducts().add(p);
-            productList.getItems().add(p);
+            Database.getInstance().addProduct(p);
+            refreshProducts(productList);
         });
 
         deleteProduct.setOnAction(e -> {
             Product p = productList.getSelectionModel().getSelectedItem();
             if (p != null) {
-                Database.getInstance().getProducts().remove(p);
-                productList.getItems().remove(p);
+                Database.getInstance().deleteProduct(p);
+                refreshProducts(productList);
             }
         });
 
         // ---------- ORDER MANAGEMENT ----------
         ListView<Order> orderList = new ListView<>();
-        orderList.getItems().addAll(Database.getInstance().getOrders());
+        refreshOrders(orderList);
 
         ComboBox<OrderStatus> statusBox = new ComboBox<>();
         statusBox.getItems().addAll(OrderStatus.values());
@@ -69,13 +69,14 @@ public class AdminDashboard {
         updateStatus.setOnAction(e -> {
             Order o = orderList.getSelectionModel().getSelectedItem();
             if (o != null && statusBox.getValue() != null) {
-                o.setStatus(statusBox.getValue().name());
+                Database.getInstance().updateOrderStatus(o, statusBox.getValue().name());
+                refreshOrders(orderList);
             }
         });
 
         // ---------- CUSTOMER MANAGEMENT ----------
         ListView<Customer> customerList = new ListView<>();
-        customerList.getItems().addAll(Database.getInstance().getCustomers());
+        refreshCustomers(customerList);
 
         Label customerDetails = new Label("Select a customer to view details.");
         ListView<Order> customerOrders = new ListView<>();
@@ -147,5 +148,17 @@ public class AdminDashboard {
         stage.setScene(new Scene(layout, 500, 600));
         stage.setTitle("Admin Dashboard");
         stage.show();
+    }
+
+    private void refreshProducts(ListView<Product> productList) {
+        productList.getItems().setAll(Database.getInstance().getProducts());
+    }
+
+    private void refreshOrders(ListView<Order> orderList) {
+        orderList.getItems().setAll(Database.getInstance().getOrders());
+    }
+
+    private void refreshCustomers(ListView<Customer> customerList) {
+        customerList.getItems().setAll(Database.getInstance().getCustomers());
     }
 }

@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run JavaFX App (Gradle)",
+      "type": "java",
+      "request": "launch",
+      "preLaunchTask": "Gradle: Run App",
+      "mainClass": "IGNORE",
+      "console": "integratedTerminal"
+    }
+  ]
+}

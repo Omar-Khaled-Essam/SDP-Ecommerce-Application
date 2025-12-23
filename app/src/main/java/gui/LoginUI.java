@@ -14,7 +14,7 @@ public class LoginUI extends Application {
     @Override
     public void start(Stage stage) {
 
-        Database.getInstance().seedProducts();
+        Database.getInstance().seedDefaults();
 
         TextField user = new TextField();
         user.setPromptText("Username");

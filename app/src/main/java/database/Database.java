@@ -3,17 +3,18 @@ package database;
 import users.*;
 import products.*;
 import orders.*;
-import java.util.*;
+import java.util.List;
 
 public class Database {
 
     private static Database instance = new Database();
+    private final DatabaseAdapter adapter;
 
-    private List<User> users = new ArrayList<>();
-    private List<Product> products = new ArrayList<>();
-    private List<Order> orders = new ArrayList<>();
-
-    private Database() {}
+    private Database() {
+        adapter = new SQLiteDatabaseAdapter("data/ecommerce.db");
+        adapter.init();
+        adapter.seedDefaults();
+    }
 
     public static Database getInstance() {
         return instance;
@@ -21,82 +22,49 @@ public class Database {
 
     // ---------- USERS ----------
     public void registerUser(User u) {
-        users.add(u);
+        adapter.registerUser(u);
     }
 
     public User authenticate(String username, String password) {
-        for (User u : users) {
-            if (u.getUsername().equals(username) &&
-                u.getPassword().equals(password)) {
-                return u;
-            }
-        }
-        return null;
+        return adapter.authenticate(username, password);
     }
 
     public List<Customer> getCustomers() {
-        List<Customer> customers = new ArrayList<>();
-        for (User u : users) {
-            if (u instanceof Customer) {
-                customers.add((Customer) u);
-            }
-        }
-        return customers;
+        return adapter.getCustomers();
     }
 
     // ---------- PRODUCTS ----------
     public List<Product> getProducts() {
-        return products;
+        return adapter.getProducts();
     }
 
-public void seedProducts() {
-    if (!products.isEmpty()) return;
+    public void addProduct(Product product) {
+        adapter.addProduct(product);
+    }
 
-    products.add(new Electronics(
-            "Laptop",
-            "Electronics",
-            15000,
-            10,
-            "High performance laptop"
-    ));
-
-    products.add(new Electronics(
-            "Phone",
-            "Electronics",
-            8000,
-            15,
-            "Smartphone"
-    ));
-
-    products.add(new Clothing(
-            "T-Shirt",
-            "Clothing",
-            500,
-            20,
-            "Cotton T-Shirt"
-    ));
-
-    products.add(new Clothing(
-            "Jacket",
-            "Clothing",
-            1200,
-            8,
-            "Winter jacket"
-    ));
-}
-
-
+    public void deleteProduct(Product product) {
+        adapter.deleteProduct(product);
+    }
 
     // ---------- ORDERS ----------
     public void addOrder(Order o) {
-        orders.add(o);
+        adapter.addOrder(o);
     }
 
     public List<Order> getOrders() {
-        return orders;
+        return adapter.getOrders();
+    }
+
+    public void updateOrderStatus(Order order, String status) {
+        adapter.updateOrderStatus(order, status);
+        order.setStatus(status);
     }
 
     public double getTotalSales() {
-        return orders.stream().mapToDouble(Order::getTotal).sum();
+        return adapter.getTotalSales();
+    }
+
+    public void seedDefaults() {
+        adapter.seedDefaults();
     }
 }
