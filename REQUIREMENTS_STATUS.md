@@ -66,10 +66,10 @@ For the Customer:
 2. Browse Products
 
 	 Description: Customers can view all available products by category. 
-⚠️ (can view products; category choice present via filter)
+✅ (can view products; category choice/filter UI present)
 
 	 Functionality: Includes product filtering and search by name, price, or category. 
-⚠️ (filters/search by name, price range, category implemented in UI)
+✅ (filters/search by name, price range, category implemented)
 
 3. Shopping Cart
 
@@ -77,15 +77,15 @@ For the Customer:
 ⚠️ (add/remove exposed in UI)
 
 	 Functionality: Displays total cost dynamically based on selected items. 
-⚠️ (total label updates on cart changes)
+⚠️ (total label updates on cart changes; tax/delivery added at checkout)
 
 4. Order Placement and Payment
 
 	 Description: Customers can place orders and make payments through available payment methods. 
-⚠️ (order placement exists; payment methods not wired into UI)
+⚠️ (order placement exists; payment method choice (Credit Card/PayPal) mocked in UI)
 
 	 Functionality: System calculates total cost (including tax and delivery fees). 
-❌ (no tax/delivery fee logic)
+⚠️ (tax 14% + delivery fee applied at checkout)
 
 5. Order Tracking
 

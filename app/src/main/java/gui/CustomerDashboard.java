@@ -28,6 +28,8 @@ public class CustomerDashboard {
         refreshProducts(productList);
 
         ListView<Product> cartList = new ListView<>();
+        ListView<Order> orderHistory = new ListView<>();
+        refreshOrders(orderHistory);
 
         TextField search = new TextField();
         search.setPromptText("Search name");
@@ -51,6 +53,11 @@ public class CustomerDashboard {
         Button removeBtn = new Button("Remove from Cart");
         Button checkoutBtn = new Button("Checkout");
         Label totalLabel = new Label("Total: 0");
+
+
+        ChoiceBox<String> paymentMethod = new ChoiceBox<>();
+        paymentMethod.getItems().addAll("Credit Card", "PayPal");
+        paymentMethod.setValue("Credit Card");
 
         applyFilters.setOnAction(e -> {
             double min = parseOrDefault(minPrice.getText(), Double.MIN_VALUE);
@@ -85,13 +92,22 @@ public class CustomerDashboard {
         });
 
         checkoutBtn.setOnAction(e -> {
-            double total = customer.getCart()
+            double subtotal = customer.getCart()
                     .stream().mapToDouble(p -> p.getPrice()).sum();
+            double tax = subtotal * 0.14;
+            double delivery = 50;
+            double grand = subtotal + tax + delivery;
+
+            String payMethod = paymentMethod.getValue();
+            if (payMethod == null) {
+                new Alert(Alert.AlertType.ERROR, "Select a payment method.").show();
+                return;
+            }
 
             Order order = new Order(
                     customer,
                     new ArrayList<>(customer.getCart()),
-                    total
+                    grand
             );
 
             Database.getInstance().addOrder(order);
@@ -100,8 +116,9 @@ public class CustomerDashboard {
             cartList.getItems().clear();
             totalLabel.setText("Total: 0");
 
-            new Alert(Alert.AlertType.INFORMATION, "Order Placed!").show();
+            new Alert(Alert.AlertType.INFORMATION, "Order Placed! Total: " + grand + " (tax + delivery included)\nPayment: " + payMethod).show();
             refreshProducts(productList);
+            refreshOrders(orderHistory);
         });
 
         // ? LOGOUT BUTTON (ONLY ADDITION)
@@ -115,6 +132,13 @@ public class CustomerDashboard {
             }
         });
 
+        // Order tracking: auto-refresh when window gains focus
+        stage.focusedProperty().addListener((obs, was, isNow) -> {
+            if (isNow) refreshOrders(orderHistory);
+        });
+        Button refreshOrdersBtn = new Button("Refresh Orders");
+        refreshOrdersBtn.setOnAction(e -> refreshOrders(orderHistory));
+
         VBox layout = new VBox(10,
                 new Label("Products"),
                 new HBox(5, search, categoryFilter),
@@ -124,7 +148,11 @@ public class CustomerDashboard {
                 new Label("Cart"), cartList,
                 removeBtn,
                 totalLabel,
+                new Label("Payment Method"), paymentMethod,
                 checkoutBtn,
+                new Label("Order History"),
+                orderHistory,
+                refreshOrdersBtn,
                 logout   // ?? added here
         );
 
@@ -148,5 +176,9 @@ public class CustomerDashboard {
     private void updateTotal(ListView<Product> cartList, Label totalLabel) {
         double total = cartList.getItems().stream().mapToDouble(Product::getPrice).sum();
         totalLabel.setText("Total: " + total);
+    }
+
+    private void refreshOrders(ListView<Order> orderHistory) {
+        orderHistory.getItems().setAll(Database.getInstance().getOrdersByCustomer(customer.getUsername()));
     }
 }
