@@ -7,4 +7,9 @@ public interface Product {
     int getStock();
     String getDescription();
     void reduceStock(int qty);
+    void setName(String name);
+    void setCategory(String category);
+    void setPrice(double price);
+    void setStock(int stock);
+    void setDescription(String description);
 }

@@ -27,6 +27,12 @@ public class Electronics implements Product {
         stock -= qty;
     }
 
+    public void setName(String name) { this.name = name; }
+    public void setCategory(String category) { this.category = category; }
+    public void setPrice(double price) { this.price = price; }
+    public void setStock(int stock) { this.stock = stock; }
+    public void setDescription(String description) { this.description = description; }
+
     @Override
     public String toString() {
         return name + " | " + category + " | " + price + " | Stock: " + stock;

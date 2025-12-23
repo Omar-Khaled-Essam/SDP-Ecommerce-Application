@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.*;
 import java.util.*;
+import java.time.LocalDate;
 
 public class SQLiteDatabaseAdapter implements DatabaseAdapter {
 
@@ -54,7 +55,8 @@ public class SQLiteDatabaseAdapter implements DatabaseAdapter {
                       id INTEGER PRIMARY KEY AUTOINCREMENT,
                       customer TEXT,
                       total REAL,
-                      status TEXT
+                      status TEXT,
+                      created_at TEXT
                     )
                     """);
             stmt.execute("""
@@ -68,6 +70,10 @@ public class SQLiteDatabaseAdapter implements DatabaseAdapter {
                       FOREIGN KEY(order_id) REFERENCES orders(id) ON DELETE CASCADE
                     )
                     """);
+            // Attempt to add created_at if missing (best effort)
+            try {
+                stmt.execute("ALTER TABLE orders ADD COLUMN created_at TEXT");
+            } catch (SQLException ignored) {}
         } catch (SQLException e) {
             throw new RuntimeException("Failed to init database", e);
         }
@@ -127,6 +133,51 @@ public class SQLiteDatabaseAdapter implements DatabaseAdapter {
         } catch (SQLException e) {
             throw new RuntimeException("Failed to register user", e);
         }
+    }
+
+    public void updatePassword(String username, String newPassword) {
+        String sql = "UPDATE users SET password = ? WHERE username = ?";
+        String hashed = PasswordUtil.hash(newPassword);
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, hashed);
+            ps.setString(2, username);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to update password", e);
+        }
+    }
+
+    public void deleteUser(String username) {
+        String sql = "DELETE FROM users WHERE username = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, username);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to delete user", e);
+        }
+    }
+
+    public List<User> getAllUsers() {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT username, role FROM users";
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                String username = rs.getString("username");
+                String role = rs.getString("role");
+                if ("Admin".equalsIgnoreCase(role)) {
+                    list.add(new Admin(username, ""));
+                } else {
+                    list.add(new Customer(username, ""));
+                }
+            }
+        } catch (SQLException e) {
+            // ignore
+        }
+        return list;
     }
 
     @Override
@@ -227,6 +278,21 @@ public class SQLiteDatabaseAdapter implements DatabaseAdapter {
         }
     }
 
+    public void updateProduct(Product product) {
+        String sql = "UPDATE products SET category = ?, price = ?, stock = ?, description = ? WHERE name = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, product.getCategory());
+            ps.setDouble(2, product.getPrice());
+            ps.setInt(3, product.getStock());
+            ps.setString(4, product.getDescription());
+            ps.setString(5, product.getName());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to update product", e);
+        }
+    }
+
     @Override
     public void deleteProduct(Product product) {
         String sql = "DELETE FROM products WHERE name = ?";
@@ -241,7 +307,7 @@ public class SQLiteDatabaseAdapter implements DatabaseAdapter {
 
     @Override
     public void addOrder(Order order) {
-        String insertOrder = "INSERT INTO orders(customer, total, status) VALUES(?,?,?)";
+        String insertOrder = "INSERT INTO orders(customer, total, status, created_at) VALUES(?,?,?,?)";
         String insertItem = "INSERT INTO order_items(order_id, product_name, category, price, qty) VALUES(?,?,?,?,?)";
         String updateStock = "UPDATE products SET stock = CASE WHEN stock - ? < 0 THEN 0 ELSE stock - ? END WHERE name = ?";
         try (Connection conn = getConnection()) {
@@ -251,6 +317,7 @@ public class SQLiteDatabaseAdapter implements DatabaseAdapter {
                 psOrder.setString(1, order.getCustomer().getUsername());
                 psOrder.setDouble(2, order.getTotal());
                 psOrder.setString(3, order.getStatus());
+                psOrder.setString(4, java.time.LocalDateTime.now().toString());
                 psOrder.executeUpdate();
 
                 try (ResultSet keys = psOrder.getGeneratedKeys()) {
@@ -298,50 +365,22 @@ public class SQLiteDatabaseAdapter implements DatabaseAdapter {
 
     @Override
     public List<Order> getOrders() {
-        List<Order> list = new ArrayList<>();
-        String sqlOrders = "SELECT id, customer, total, status FROM orders";
-        String sqlItems = "SELECT product_name, category, price, qty FROM order_items WHERE order_id = ?";
-        try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sqlOrders)) {
-            while (rs.next()) {
-                int id = rs.getInt("id");
-                String username = rs.getString("customer");
-                double total = rs.getDouble("total");
-                String status = rs.getString("status");
+        return fetchOrders("SELECT id, customer, total, status, created_at FROM orders", ps -> {});
+    }
 
-                List<Product> items = new ArrayList<>();
-                try (PreparedStatement ps = conn.prepareStatement(sqlItems)) {
-                    ps.setInt(1, id);
-                    try (ResultSet irs = ps.executeQuery()) {
-                        while (irs.next()) {
-                            String category = irs.getString("category");
-                            String name = irs.getString("product_name");
-                            double price = irs.getDouble("price");
-                            int qty = irs.getInt("qty");
-                            for (int i = 0; i < qty; i++) {
-                                Product p;
-                                if ("Electronics".equalsIgnoreCase(category)) {
-                                    p = new Electronics(name, category, price, 0, "");
-                                } else {
-                                    p = new Clothing(name, category, price, 0, "");
-                                }
-                                items.add(p);
-                            }
-                        }
-                    }
-                }
+    @Override
+    public List<Order> getOrdersByCustomer(String username) {
+        return fetchOrders("SELECT id, customer, total, status, created_at FROM orders WHERE customer = ?",
+                ps -> ps.setString(1, username));
+    }
 
-                Customer customer = new Customer(username, "");
-                Order order = new Order(customer, items, total);
-                order.setId(id);
-                order.setStatus(status);
-                list.add(order);
-            }
-        } catch (SQLException e) {
-            // ignore
-        }
-        return list;
+    @Override
+    public List<Order> getOrdersBetween(LocalDate start, LocalDate end) {
+        return fetchOrders("SELECT id, customer, total, status, created_at FROM orders WHERE date(created_at) BETWEEN date(?) AND date(?)",
+                ps -> {
+                    ps.setString(1, start.toString());
+                    ps.setString(2, end.toString());
+                });
     }
 
     @Override
@@ -368,6 +407,114 @@ public class SQLiteDatabaseAdapter implements DatabaseAdapter {
             // ignore
         }
         return 0;
+    }
+
+    @Override
+    public double getTotalSalesBetween(LocalDate start, LocalDate end) {
+        String sql = "SELECT SUM(total) as total FROM orders WHERE date(created_at) BETWEEN date(?) AND date(?)";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, start.toString());
+            ps.setString(2, end.toString());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getDouble("total");
+            }
+        } catch (SQLException e) {
+            // ignore
+        }
+        return 0;
+    }
+
+    @Override
+    public List<Product> getLowStock(int threshold) {
+        List<Product> list = new ArrayList<>();
+        String sql = "SELECT name, category, price, stock, description FROM products WHERE stock <= ?";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, threshold);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String category = rs.getString("category");
+                    Product p;
+                    if ("Electronics".equalsIgnoreCase(category)) {
+                        p = new Electronics(
+                                rs.getString("name"),
+                                category,
+                                rs.getDouble("price"),
+                                rs.getInt("stock"),
+                                rs.getString("description")
+                        );
+                    } else {
+                        p = new Clothing(
+                                rs.getString("name"),
+                                category,
+                                rs.getDouble("price"),
+                                rs.getInt("stock"),
+                                rs.getString("description")
+                        );
+                    }
+                    list.add(p);
+                }
+            }
+        } catch (SQLException e) {
+            // ignore
+        }
+        return list;
+    }
+
+    private List<Order> fetchOrders(String sqlOrders, SqlBinder binder) {
+        List<Order> list = new ArrayList<>();
+        String sqlItems = "SELECT product_name, category, price, qty FROM order_items WHERE order_id = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sqlOrders)) {
+            binder.bind(stmt);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    int id = rs.getInt("id");
+                    String username = rs.getString("customer");
+                    double total = rs.getDouble("total");
+                    String status = rs.getString("status");
+                    String createdAt = rs.getString("created_at");
+
+                    List<Product> items = new ArrayList<>();
+                    try (PreparedStatement ps = conn.prepareStatement(sqlItems)) {
+                        ps.setInt(1, id);
+                        try (ResultSet irs = ps.executeQuery()) {
+                            while (irs.next()) {
+                                String category = irs.getString("category");
+                                String name = irs.getString("product_name");
+                                double price = irs.getDouble("price");
+                                int qty = irs.getInt("qty");
+                                for (int i = 0; i < qty; i++) {
+                                    Product p;
+                                    if ("Electronics".equalsIgnoreCase(category)) {
+                                        p = new Electronics(name, category, price, 0, "");
+                                    } else {
+                                        p = new Clothing(name, category, price, 0, "");
+                                    }
+                                    items.add(p);
+                                }
+                            }
+                        }
+                    }
+
+                    Customer customer = new Customer(username, "");
+                    Order order = new Order(customer, items, total);
+                    order.setId(id);
+                    order.setStatus(status);
+                    order.setCreatedAt(createdAt);
+                    list.add(order);
+                }
+            }
+        } catch (SQLException e) {
+            // ignore
+        }
+        return list;
+    }
+
+    @FunctionalInterface
+    interface SqlBinder {
+        void bind(PreparedStatement ps) throws SQLException;
     }
 
     private Connection getConnection() throws SQLException {

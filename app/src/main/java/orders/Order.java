@@ -11,6 +11,7 @@ public class Order {
     private List<Product> products;
     private double total;
     private String status = "Pending";
+    private String createdAt;
 
     private List<Observer> observers = new ArrayList<>();
 
@@ -23,6 +24,8 @@ public class Order {
 
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
+    public String getCreatedAt() { return createdAt; }
+    public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
 
     public void attach(Observer o) {
         observers.add(o);
@@ -47,6 +50,7 @@ public class Order {
     @Override
     public String toString() {
         String idPart = (id != null) ? ("#" + id + " ") : "";
-        return idPart + "Order - " + status + " - Total: " + total;
+        String datePart = (createdAt != null) ? (" | " + createdAt) : "";
+        return idPart + "Order - " + status + " - Total: " + total + datePart;
     }
 }

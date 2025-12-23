@@ -32,6 +32,9 @@ public class Database {
     public List<Customer> getCustomers() {
         return adapter.getCustomers();
     }
+    public List<User> getAllUsers() { return adapter.getAllUsers(); }
+    public void updatePassword(String username, String newPassword) { adapter.updatePassword(username, newPassword); }
+    public void deleteUser(String username) { adapter.deleteUser(username); }
 
     // ---------- PRODUCTS ----------
     public List<Product> getProducts() {
@@ -45,6 +48,7 @@ public class Database {
     public void deleteProduct(Product product) {
         adapter.deleteProduct(product);
     }
+    public void updateProduct(Product product) { adapter.updateProduct(product); }
 
     // ---------- ORDERS ----------
     public void addOrder(Order o) {
@@ -53,6 +57,15 @@ public class Database {
 
     public List<Order> getOrders() {
         return adapter.getOrders();
+    }
+    public List<Order> getOrdersBetween(java.time.LocalDate start, java.time.LocalDate end) {
+        return adapter.getOrdersBetween(start, end);
+    }
+    public double getTotalSalesBetween(java.time.LocalDate start, java.time.LocalDate end) {
+        return adapter.getTotalSalesBetween(start, end);
+    }
+    public List<Order> getOrdersByCustomer(String username) {
+        return adapter.getOrdersByCustomer(username);
     }
 
     public void updateOrderStatus(Order order, String status) {
@@ -66,5 +79,9 @@ public class Database {
 
     public void seedDefaults() {
         adapter.seedDefaults();
+    }
+
+    public List<Product> getLowStock(int threshold) {
+        return adapter.getLowStock(threshold);
     }
 }
