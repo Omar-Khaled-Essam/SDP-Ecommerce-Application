@@ -35,6 +35,9 @@ public class Database {
     public List<User> getAllUsers() { return adapter.getAllUsers(); }
     public void updatePassword(String username, String newPassword) { adapter.updatePassword(username, newPassword); }
     public void deleteUser(String username) { adapter.deleteUser(username); }
+    public boolean usernameExists(String username) { return adapter.usernameExists(username); }
+    public boolean isPasswordResetRequired(String username) { return adapter.isPasswordResetRequired(username); }
+    public void resetPasswordByAdmin(String username) { adapter.resetPasswordByAdmin(username); }
 
     // ---------- PRODUCTS ----------
     public List<Product> getProducts() {

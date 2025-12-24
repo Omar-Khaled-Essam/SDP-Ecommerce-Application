@@ -38,9 +38,14 @@ public class SQLiteDatabaseAdapter implements DatabaseAdapter {
                     CREATE TABLE IF NOT EXISTS users (
                       username TEXT PRIMARY KEY,
                       password TEXT NOT NULL,
-                      role TEXT NOT NULL
+                      role TEXT NOT NULL,
+                      password_reset_required INTEGER DEFAULT 0
                     )
                     """);
+            // Add password_reset_required column if it doesn't exist (for existing databases)
+            try {
+                stmt.execute("ALTER TABLE users ADD COLUMN password_reset_required INTEGER DEFAULT 0");
+            } catch (SQLException ignored) {}
             stmt.execute("""
                     CREATE TABLE IF NOT EXISTS products (
                       name TEXT PRIMARY KEY,
@@ -92,6 +97,11 @@ public class SQLiteDatabaseAdapter implements DatabaseAdapter {
     }
 
     private boolean userExists(String username) {
+        return usernameExists(username);
+    }
+
+    @Override
+    public boolean usernameExists(String username) {
         String sql = "SELECT 1 FROM users WHERE username = ?";
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -136,7 +146,8 @@ public class SQLiteDatabaseAdapter implements DatabaseAdapter {
     }
 
     public void updatePassword(String username, String newPassword) {
-        String sql = "UPDATE users SET password = ? WHERE username = ?";
+        // Update password and clear the reset required flag
+        String sql = "UPDATE users SET password = ?, password_reset_required = 0 WHERE username = ?";
         String hashed = PasswordUtil.hash(newPassword);
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -145,6 +156,22 @@ public class SQLiteDatabaseAdapter implements DatabaseAdapter {
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Failed to update password", e);
+        }
+    }
+
+    public void resetPasswordByAdmin(String username) {
+        // Admin resets password - sets a temporary password and flag that user must reset
+        // Generate a random temporary password that user cannot guess
+        String tempPassword = "RESET_REQUIRED_" + System.currentTimeMillis();
+        String hashed = PasswordUtil.hash(tempPassword);
+        String sql = "UPDATE users SET password = ?, password_reset_required = 1 WHERE username = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, hashed);
+            ps.setString(2, username);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to reset password", e);
         }
     }
 
@@ -182,14 +209,23 @@ public class SQLiteDatabaseAdapter implements DatabaseAdapter {
 
     @Override
     public User authenticate(String username, String password) {
-        String sql = "SELECT password, role FROM users WHERE username = ?";
+        String sql = "SELECT password, role, password_reset_required FROM users WHERE username = ?";
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, username);
             try (ResultSet rs = ps.executeQuery()) {
                 if (!rs.next()) return null;
+                
+                // Check if password reset is required first - if so, deny login regardless of password
+                int resetRequired = rs.getInt("password_reset_required");
+                if (resetRequired != 0) {
+                    return null; // Login denied - password reset required
+                }
+                
+                // Verify password only if reset is not required
                 String stored = rs.getString("password");
                 if (!PasswordUtil.verify(password, stored)) return null;
+                
                 String role = rs.getString("role");
                 if ("Admin".equalsIgnoreCase(role)) {
                     return new Admin(username, stored);
@@ -199,6 +235,22 @@ public class SQLiteDatabaseAdapter implements DatabaseAdapter {
         } catch (SQLException e) {
             return null;
         }
+    }
+
+    public boolean isPasswordResetRequired(String username) {
+        String sql = "SELECT password_reset_required FROM users WHERE username = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("password_reset_required") != 0;
+                }
+            }
+        } catch (SQLException e) {
+            // ignore
+        }
+        return false;
     }
 
     @Override
@@ -398,7 +450,8 @@ public class SQLiteDatabaseAdapter implements DatabaseAdapter {
 
     @Override
     public double getTotalSales() {
-        String sql = "SELECT SUM(total) as total FROM orders";
+        // Exclude cancelled orders from sales totals
+        String sql = "SELECT SUM(total) as total FROM orders WHERE status != 'Cancelled'";
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -411,7 +464,8 @@ public class SQLiteDatabaseAdapter implements DatabaseAdapter {
 
     @Override
     public double getTotalSalesBetween(LocalDate start, LocalDate end) {
-        String sql = "SELECT SUM(total) as total FROM orders WHERE date(created_at) BETWEEN date(?) AND date(?)";
+        // Exclude cancelled orders from sales totals
+        String sql = "SELECT SUM(total) as total FROM orders WHERE date(created_at) BETWEEN date(?) AND date(?) AND status != 'Cancelled'";
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, start.toString());
@@ -427,7 +481,8 @@ public class SQLiteDatabaseAdapter implements DatabaseAdapter {
 
     @Override
     public double getTotalSpentForCustomer(String username) {
-        String sql = "SELECT SUM(total) as total FROM orders WHERE customer = ?";
+        // Exclude cancelled orders from customer spending totals
+        String sql = "SELECT SUM(total) as total FROM orders WHERE customer = ? AND status != 'Cancelled'";
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, username);

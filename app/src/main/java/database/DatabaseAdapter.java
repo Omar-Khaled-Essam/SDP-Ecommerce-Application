@@ -41,6 +41,9 @@ public interface DatabaseAdapter {
     void updatePassword(String username, String newPassword);
     void deleteUser(String username);
     List<User> getAllUsers();
+    boolean usernameExists(String username);
+    boolean isPasswordResetRequired(String username);
+    void resetPasswordByAdmin(String username);
 
     List<Product> getLowStock(int threshold);
 }
