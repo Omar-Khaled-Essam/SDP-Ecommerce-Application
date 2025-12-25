@@ -1,5 +1,6 @@
 package orders;
 
+// SOLID: SRP⚠️ (domain model + observer hooks), OCP⚠️ (status as String; weak constraints).
 import products.Product;
 import users.Customer;
 

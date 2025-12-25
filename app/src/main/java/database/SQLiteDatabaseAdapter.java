@@ -1,5 +1,6 @@
 package database;
 
+// SOLID: SRP⚠️ (schema + seeding + queries in one class), OCP⚠️ (category/type branching), DIP⚠️ (direct JDBC usage).
 import orders.Order;
 import products.Clothing;
 import products.Electronics;

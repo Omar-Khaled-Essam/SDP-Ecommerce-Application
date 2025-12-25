@@ -1,5 +1,6 @@
 package gui;
 
+// SOLID: SRP✅ (sales report UI only), DIP⚠️ (calls Database singleton directly).
 import database.Database;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

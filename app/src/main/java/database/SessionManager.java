@@ -1,5 +1,6 @@
 package database;
 
+// SOLID: SRP✅ (session state only), DIP⚠️ (Singleton/global access can hide coupling).
 import users.User;
 
 public class SessionManager {

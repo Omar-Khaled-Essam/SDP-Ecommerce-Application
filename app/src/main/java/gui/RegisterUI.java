@@ -1,5 +1,6 @@
 package gui;
 
+// SOLID: SRP⚠️ (UI + registration logic), DIP⚠️ (calls Database singleton directly).
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;

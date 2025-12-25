@@ -1,5 +1,6 @@
 package gui;
 
+// SOLID: SRP✅ (order tracking UI only), DIP⚠️ (calls Database singleton directly).
 import database.Database;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

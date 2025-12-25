@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface DatabaseAdapter {
+    // SOLID: DIP✅ (UI depends on this abstraction via Database facade), ISP⚠️ (interface has grown broad over time).
     void init();
 
     void seedDefaults();

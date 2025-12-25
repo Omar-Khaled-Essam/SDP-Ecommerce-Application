@@ -1,5 +1,6 @@
 package users;
 
+// SOLID: SRP⚠️ (user data + cart + order history + observer updates in one class).
 import products.Product;
 import orders.Order;
 import orders.Observer;

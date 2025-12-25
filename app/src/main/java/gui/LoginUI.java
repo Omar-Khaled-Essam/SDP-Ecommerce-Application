@@ -1,5 +1,6 @@
 package gui;
 
+// SOLID: SRP⚠️ (UI + auth/recovery/alerts), DIP⚠️ (calls Database singleton directly).
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

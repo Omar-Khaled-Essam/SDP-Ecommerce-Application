@@ -1,5 +1,6 @@
 package products;
 
+// SOLID: ISP⚠️ (includes setters; consumers that only read products still depend on mutation API).
 public interface Product {
     String getName();
 

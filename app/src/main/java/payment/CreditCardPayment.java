@@ -1,5 +1,6 @@
 package payment;
 
+// SOLID: SRP✅ (one payment implementation).
 public class CreditCardPayment implements PaymentStrategy {
 
     @Override

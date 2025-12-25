@@ -1,5 +1,6 @@
 package products;
 
+// SOLID: SRP✅ (product data/behavior only).
 public class Electronics implements Product {
 
     private String name;

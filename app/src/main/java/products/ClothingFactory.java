@@ -1,5 +1,6 @@
 package products;
 
+// SOLID: SRP✅ (one responsibility: create a Clothing product).
 public class ClothingFactory implements ProductFactory {
 
     @Override
