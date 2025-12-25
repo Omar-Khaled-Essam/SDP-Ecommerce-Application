@@ -5,6 +5,7 @@ import users.Customer;
 
 import java.util.*;
 
+// Pattern: Builder - builds an Order step-by-step.
 public class OrderBuilder {
 
     private Customer customer;

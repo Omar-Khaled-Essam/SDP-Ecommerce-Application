@@ -7,6 +7,9 @@ import products.Product;
 import users.Customer;
 import users.User;
 
+// Patterns used in this project (excluding the DB Adapter layer):
+// - Singleton: Database is a single shared access point.
+// - Facade: Database provides a simplified API over persistence + business operations for the UI.
 public class Database {
 
     private static Database instance = new Database();
