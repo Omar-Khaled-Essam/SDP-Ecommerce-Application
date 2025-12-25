@@ -75,7 +75,9 @@ public class PurchaseHistoryWindow extends Stage {
         refreshBtn.setOnMouseExited(e -> refreshBtn.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold; -fx-background-radius: 5;"));
         refreshBtn.setOnAction(e -> refresh.run());
 
-        focusedProperty().addListener((obs, was, now) -> { if (now) refresh.run(); });
+        focusedProperty().addListener((obs, was, now) -> {
+            if (now) refresh.run();
+        });
 
         HBox actions = new HBox(10);
         actions.setAlignment(Pos.CENTER_RIGHT);
@@ -85,15 +87,15 @@ public class PurchaseHistoryWindow extends Stage {
         root.setPadding(new Insets(20));
         root.setStyle("-fx-background-color: #ffffff;");
         root.getChildren().addAll(
-            titleLabel,
-            new Separator(),
-            userLabel,
-            new Label("Orders:"),
-            orders,
-            new Label("Order Details:"),
-            details,
-            new Separator(),
-            actions
+                titleLabel,
+                new Separator(),
+                userLabel,
+                new Label("Orders:"),
+                orders,
+                new Label("Order Details:"),
+                details,
+                new Separator(),
+                actions
         );
 
         setScene(new Scene(root, 500, 600));

@@ -3,6 +3,7 @@ package users;
 import products.Product;
 import orders.Order;
 import orders.Observer;
+
 import java.util.*;
 
 public class Customer extends User implements Observer {

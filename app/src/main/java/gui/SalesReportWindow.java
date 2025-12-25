@@ -88,8 +88,8 @@ public class SalesReportWindow extends Stage {
                 alert.setTitle("Invalid Date Range");
                 alert.setHeaderText("Invalid Date Range");
                 Label content = new Label("Please select a valid date range.\n\n" +
-                    "• Start date must be before or equal to end date\n" +
-                    "• Both dates must be selected");
+                        "• Start date must be before or equal to end date\n" +
+                        "• Both dates must be selected");
                 content.setWrapText(true);
                 content.setMaxWidth(400);
                 content.setStyle("-fx-font-size: 13px; -fx-padding: 10px;");
@@ -125,13 +125,13 @@ public class SalesReportWindow extends Stage {
         root.setPadding(new Insets(20));
         root.setStyle("-fx-background-color: #ffffff;");
         root.getChildren().addAll(
-            titleLabel,
-            new Separator(),
-            dateGrid,
-            quick,
-            summary,
-            new Label("Orders:"),
-            orderList
+                titleLabel,
+                new Separator(),
+                dateGrid,
+                quick,
+                summary,
+                new Label("Orders:"),
+                orderList
         );
 
         setScene(new Scene(root, 500, 600));

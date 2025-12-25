@@ -8,7 +8,8 @@ public class SessionManager {
     private User currentUser;
 
     // Private constructor (Singleton)
-    private SessionManager() {}
+    private SessionManager() {
+    }
 
     public static SessionManager getInstance() {
         if (instance == null) {

@@ -46,7 +46,9 @@ public class OrderTrackingWindow extends Stage {
         refreshBtn.setOnAction(e -> refresh.run());
 
         // Auto-refresh on focus
-        focusedProperty().addListener((obs, was, now) -> { if (now) refresh.run(); });
+        focusedProperty().addListener((obs, was, now) -> {
+            if (now) refresh.run();
+        });
 
         HBox actions = new HBox(10);
         actions.setAlignment(Pos.CENTER_RIGHT);
@@ -56,11 +58,11 @@ public class OrderTrackingWindow extends Stage {
         root.setPadding(new Insets(20));
         root.setStyle("-fx-background-color: #ffffff;");
         root.getChildren().addAll(
-            titleLabel,
-            new Separator(),
-            userLabel,
-            orders,
-            actions
+                titleLabel,
+                new Separator(),
+                userLabel,
+                orders,
+                actions
         );
 
         setScene(new Scene(root, 500, 550));

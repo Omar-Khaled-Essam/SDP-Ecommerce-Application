@@ -110,7 +110,7 @@ public class RegisterUI {
                 Database.getInstance().registerUser(u);
                 successLabel.setText("Registration successful! Redirecting to login...");
                 successLabel.setVisible(true);
-                
+
                 // Close and open login after a short delay
                 new Thread(() -> {
                     try {
@@ -151,19 +151,19 @@ public class RegisterUI {
 
         VBox fieldsBox = new VBox(10);
         fieldsBox.getChildren().addAll(
-            usernameLabel, user,
-            passwordLabel, pass,
-            roleLabel, role
+                usernameLabel, user,
+                passwordLabel, pass,
+                roleLabel, role
         );
 
         formBox.getChildren().addAll(
-            titleLabel,
-            new Separator(),
-            fieldsBox,
-            errorLabel,
-            successLabel,
-            register,
-            backToLogin
+                titleLabel,
+                new Separator(),
+                fieldsBox,
+                errorLabel,
+                successLabel,
+                register,
+                backToLogin
         );
 
         // Main container with background

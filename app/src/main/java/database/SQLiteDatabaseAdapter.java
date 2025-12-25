@@ -29,7 +29,8 @@ public class SQLiteDatabaseAdapter implements DatabaseAdapter {
             if (parent != null) {
                 Files.createDirectories(parent);
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement()) {
@@ -45,7 +46,8 @@ public class SQLiteDatabaseAdapter implements DatabaseAdapter {
             // Add password_reset_required column if it doesn't exist (for existing databases)
             try {
                 stmt.execute("ALTER TABLE users ADD COLUMN password_reset_required INTEGER DEFAULT 0");
-            } catch (SQLException ignored) {}
+            } catch (SQLException ignored) {
+            }
             stmt.execute("""
                     CREATE TABLE IF NOT EXISTS products (
                       name TEXT PRIMARY KEY,
@@ -78,7 +80,8 @@ public class SQLiteDatabaseAdapter implements DatabaseAdapter {
             // Attempt to add created_at if missing (best effort)
             try {
                 stmt.execute("ALTER TABLE orders ADD COLUMN created_at TEXT");
-            } catch (SQLException ignored) {}
+            } catch (SQLException ignored) {
+            }
         } catch (SQLException e) {
             throw new RuntimeException("Failed to init database", e);
         }
@@ -215,17 +218,17 @@ public class SQLiteDatabaseAdapter implements DatabaseAdapter {
             ps.setString(1, username);
             try (ResultSet rs = ps.executeQuery()) {
                 if (!rs.next()) return null;
-                
+
                 // Check if password reset is required first - if so, deny login regardless of password
                 int resetRequired = rs.getInt("password_reset_required");
                 if (resetRequired != 0) {
                     return null; // Login denied - password reset required
                 }
-                
+
                 // Verify password only if reset is not required
                 String stored = rs.getString("password");
                 if (!PasswordUtil.verify(password, stored)) return null;
-                
+
                 String role = rs.getString("role");
                 if ("Admin".equalsIgnoreCase(role)) {
                     return new Admin(username, stored);
@@ -417,7 +420,8 @@ public class SQLiteDatabaseAdapter implements DatabaseAdapter {
 
     @Override
     public List<Order> getOrders() {
-        return fetchOrders("SELECT id, customer, total, status, created_at FROM orders", ps -> {});
+        return fetchOrders("SELECT id, customer, total, status, created_at FROM orders", ps -> {
+        });
     }
 
     @Override

@@ -34,13 +34,19 @@ public class CustomerDashboard {
     }
 
     private String darkenColor(String color) {
-        switch(color) {
-            case "#3498db": return "#2980b9";
-            case "#27ae60": return "#229954";
-            case "#e74c3c": return "#c0392b";
-            case "#f39c12": return "#d68910";
-            case "#95a5a6": return "#7f8c8d";
-            default: return color;
+        switch (color) {
+            case "#3498db":
+                return "#2980b9";
+            case "#27ae60":
+                return "#229954";
+            case "#e74c3c":
+                return "#c0392b";
+            case "#f39c12":
+                return "#d68910";
+            case "#95a5a6":
+                return "#7f8c8d";
+            default:
+                return color;
         }
     }
 
@@ -48,17 +54,17 @@ public class CustomerDashboard {
         Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(header);
-        
+
         Label contentLabel = new Label(content);
         contentLabel.setWrapText(true);
         contentLabel.setMaxWidth(400);
         contentLabel.setStyle("-fx-font-size: 13px; -fx-padding: 10px;");
-        
+
         ScrollPane scrollPane = new ScrollPane(contentLabel);
         scrollPane.setFitToWidth(true);
         scrollPane.setPrefViewportHeight(Math.min(200, content.split("\n").length * 25 + 50));
         scrollPane.setMaxHeight(300);
-        
+
         alert.getDialogPane().setContent(scrollPane);
         alert.getDialogPane().setPrefWidth(450);
         return alert;
@@ -124,8 +130,8 @@ public class CustomerDashboard {
             productList.getItems().setAll(
                     Database.getInstance().getProducts().stream().filter(p ->
                             p.getPrice() >= min && p.getPrice() <= max &&
-                            ("All".equalsIgnoreCase(cat) || p.getCategory().equalsIgnoreCase(cat)) &&
-                            (term.isEmpty() || p.getName().toLowerCase().contains(term))
+                                    ("All".equalsIgnoreCase(cat) || p.getCategory().equalsIgnoreCase(cat)) &&
+                                    (term.isEmpty() || p.getName().toLowerCase().contains(term))
                     ).collect(Collectors.toList())
             );
         });
@@ -133,18 +139,18 @@ public class CustomerDashboard {
         addBtn.setOnAction(e -> {
             Product p = productList.getSelectionModel().getSelectedItem();
             if (p == null) {
-                createFormattedAlert(Alert.AlertType.WARNING, "Selection Required", "No Product Selected", 
-                    "Please select a product from the list to add to your cart.").show();
+                createFormattedAlert(Alert.AlertType.WARNING, "Selection Required", "No Product Selected",
+                        "Please select a product from the list to add to your cart.").show();
                 return;
             }
             if (p.getStock() <= 0) {
-                createFormattedAlert(Alert.AlertType.WARNING, "Out of Stock", "Product Unavailable", 
-                    "Sorry, '" + p.getName() + "' is currently out of stock.\n\nPlease select a different product.").show();
+                createFormattedAlert(Alert.AlertType.WARNING, "Out of Stock", "Product Unavailable",
+                        "Sorry, '" + p.getName() + "' is currently out of stock.\n\nPlease select a different product.").show();
                 return;
             }
             customer.addToCart(p);
-            createFormattedAlert(Alert.AlertType.INFORMATION, "Added to Cart", "Product Added", 
-                "'" + p.getName() + "' has been added to your cart successfully!").show();
+            createFormattedAlert(Alert.AlertType.INFORMATION, "Added to Cart", "Product Added",
+                    "'" + p.getName() + "' has been added to your cart successfully!").show();
             refreshProducts(productList);
         });
 
@@ -161,12 +167,12 @@ public class CustomerDashboard {
         productsContent.setPadding(new Insets(20));
         productsContent.setStyle("-fx-background-color: #ffffff;");
         productsContent.getChildren().addAll(
-            searchLabel,
-            filterRow1,
-            filterRow2,
-            new Label("Available Products:"),
-            productList,
-            addBtn
+                searchLabel,
+                filterRow1,
+                filterRow2,
+                new Label("Available Products:"),
+                productList,
+                addBtn
         );
 
         productsTab.setContent(productsContent);
@@ -228,8 +234,8 @@ public class CustomerDashboard {
         removeBtn.setOnAction(e -> {
             Product p = cartList.getSelectionModel().getSelectedItem();
             if (p == null) {
-                createFormattedAlert(Alert.AlertType.WARNING, "Selection Required", "No Item Selected", 
-                    "Please select an item from your cart to remove.").show();
+                createFormattedAlert(Alert.AlertType.WARNING, "Selection Required", "No Item Selected",
+                        "Please select an item from your cart to remove.").show();
                 return;
             }
             cartList.getItems().remove(p);
@@ -239,8 +245,8 @@ public class CustomerDashboard {
 
         checkoutBtn.setOnAction(e -> {
             if (customer.getCart().isEmpty()) {
-                createFormattedAlert(Alert.AlertType.WARNING, "Empty Cart", "Your Cart is Empty", 
-                    "Your shopping cart is empty.\n\nPlease add products to your cart before checkout.").show();
+                createFormattedAlert(Alert.AlertType.WARNING, "Empty Cart", "Your Cart is Empty",
+                        "Your shopping cart is empty.\n\nPlease add products to your cart before checkout.").show();
                 return;
             }
 
@@ -251,8 +257,8 @@ public class CustomerDashboard {
 
             String payMethod = paymentMethod.getValue();
             if (payMethod == null) {
-                createFormattedAlert(Alert.AlertType.ERROR, "Payment Method Required", "No Payment Method Selected", 
-                    "Please select a payment method before completing your order.").show();
+                createFormattedAlert(Alert.AlertType.ERROR, "Payment Method Required", "No Payment Method Selected",
+                        "Please select a payment method before completing your order.").show();
                 return;
             }
 
@@ -264,17 +270,17 @@ public class CustomerDashboard {
             updateCartDisplay.run();
 
             createFormattedAlert(Alert.AlertType.INFORMATION, "Order Placed", "Order Placed Successfully!",
-                String.format("Your order has been placed successfully!\n\n" +
-                "Order Details:\n" +
-                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-                "Subtotal: $%.2f\n" +
-                "Tax (14%%): $%.2f\n" +
-                "Delivery Fee: $%.2f\n" +
-                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-                "Grand Total: $%.2f\n\n" +
-                "Payment Method: %s\n\n" +
-                "Thank you for your purchase!", 
-                subtotal, tax, delivery, grand, payMethod)).show();
+                    String.format("Your order has been placed successfully!\n\n" +
+                                    "Order Details:\n" +
+                                    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                                    "Subtotal: $%.2f\n" +
+                                    "Tax (14%%): $%.2f\n" +
+                                    "Delivery Fee: $%.2f\n" +
+                                    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                                    "Grand Total: $%.2f\n\n" +
+                                    "Payment Method: %s\n\n" +
+                                    "Thank you for your purchase!",
+                            subtotal, tax, delivery, grand, payMethod)).show();
 
             refreshProducts(productList);
         });
@@ -283,18 +289,18 @@ public class CustomerDashboard {
         cartContent.setPadding(new Insets(20));
         cartContent.setStyle("-fx-background-color: #ffffff;");
         cartContent.getChildren().addAll(
-            cartTitle,
-            cartList,
-            removeBtn,
-            new Separator(),
-            totalLabel,
-            taxLabel,
-            deliveryLabel,
-            new Separator(),
-            grandTotalLabel,
-            new Label("Payment Method:"),
-            paymentMethod,
-            checkoutBtn
+                cartTitle,
+                cartList,
+                removeBtn,
+                new Separator(),
+                totalLabel,
+                taxLabel,
+                deliveryLabel,
+                new Separator(),
+                grandTotalLabel,
+                new Label("Payment Method:"),
+                paymentMethod,
+                checkoutBtn
         );
 
         cartTab.setContent(cartContent);
@@ -339,9 +345,9 @@ public class CustomerDashboard {
         ordersContent.setPadding(new Insets(20));
         ordersContent.setStyle("-fx-background-color: #ffffff;");
         ordersContent.getChildren().addAll(
-            ordersTitle,
-            orderHistory,
-            orderButtons
+                ordersTitle,
+                orderHistory,
+                orderButtons
         );
 
         ordersTab.setContent(ordersContent);

@@ -33,14 +33,21 @@ public class AdminDashboard {
     }
 
     private String darkenColor(String color) {
-        switch(color) {
-            case "#3498db": return "#2980b9";
-            case "#27ae60": return "#229954";
-            case "#e74c3c": return "#c0392b";
-            case "#f39c12": return "#d68910";
-            case "#95a5a6": return "#7f8c8d";
-            case "#9b59b6": return "#8e44ad";
-            default: return color;
+        switch (color) {
+            case "#3498db":
+                return "#2980b9";
+            case "#27ae60":
+                return "#229954";
+            case "#e74c3c":
+                return "#c0392b";
+            case "#f39c12":
+                return "#d68910";
+            case "#95a5a6":
+                return "#7f8c8d";
+            case "#9b59b6":
+                return "#8e44ad";
+            default:
+                return color;
         }
     }
 
@@ -48,19 +55,19 @@ public class AdminDashboard {
         Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(header);
-        
+
         // Create a label with wrapping for better text display
         Label contentLabel = new Label(content);
         contentLabel.setWrapText(true);
         contentLabel.setMaxWidth(400);
         contentLabel.setStyle("-fx-font-size: 13px; -fx-padding: 10px;");
-        
+
         // Create a scrollable area if content is long
         ScrollPane scrollPane = new ScrollPane(contentLabel);
         scrollPane.setFitToWidth(true);
         scrollPane.setPrefViewportHeight(Math.min(200, content.split("\n").length * 25 + 50));
         scrollPane.setMaxHeight(300);
-        
+
         alert.getDialogPane().setContent(scrollPane);
         alert.getDialogPane().setPrefWidth(450);
         return alert;
@@ -125,42 +132,42 @@ public class AdminDashboard {
             try {
                 Product p = createProductFromFields(name, category, price, stock, description);
                 if (p == null) {
-                    createFormattedAlert(Alert.AlertType.ERROR, "Error", "Validation Error", 
-                        "Please fill all fields correctly.\n\nAll fields are required:\n• Product Name\n• Category (Electronics or Clothing)\n• Price (must be a number ≥ 0)\n• Stock (must be a number ≥ 0)\n• Description").show();
+                    createFormattedAlert(Alert.AlertType.ERROR, "Error", "Validation Error",
+                            "Please fill all fields correctly.\n\nAll fields are required:\n• Product Name\n• Category (Electronics or Clothing)\n• Price (must be a number ≥ 0)\n• Stock (must be a number ≥ 0)\n• Description").show();
                     return;
                 }
                 Database.getInstance().addProduct(p);
                 refreshProducts(productList);
                 clearProductFields(name, category, price, stock, description);
-                createFormattedAlert(Alert.AlertType.INFORMATION, "Success", "Product Added", 
-                    "Product '" + p.getName() + "' has been added successfully!").show();
+                createFormattedAlert(Alert.AlertType.INFORMATION, "Success", "Product Added",
+                        "Product '" + p.getName() + "' has been added successfully!").show();
             } catch (Exception ex) {
-                createFormattedAlert(Alert.AlertType.ERROR, "Error", "Failed to Add Product", 
-                    "An error occurred while adding the product:\n\n" + ex.getMessage()).show();
+                createFormattedAlert(Alert.AlertType.ERROR, "Error", "Failed to Add Product",
+                        "An error occurred while adding the product:\n\n" + ex.getMessage()).show();
             }
         });
 
         deleteProduct.setOnAction(e -> {
             Product p = productList.getSelectionModel().getSelectedItem();
             if (p == null) {
-                createFormattedAlert(Alert.AlertType.WARNING, "Selection Required", "No Product Selected", 
-                    "Please select a product from the list to delete.").show();
+                createFormattedAlert(Alert.AlertType.WARNING, "Selection Required", "No Product Selected",
+                        "Please select a product from the list to delete.").show();
                 return;
             }
-            Alert confirm = createFormattedAlert(Alert.AlertType.CONFIRMATION, "Confirm Deletion", 
-                "Delete Product?", "Are you sure you want to delete the following product?\n\n" +
-                "Product: " + p.getName() + "\n" +
-                "Category: " + p.getCategory() + "\n" +
-                "Price: $" + String.format("%.2f", p.getPrice()) + "\n\n" +
-                "This action cannot be undone!");
+            Alert confirm = createFormattedAlert(Alert.AlertType.CONFIRMATION, "Confirm Deletion",
+                    "Delete Product?", "Are you sure you want to delete the following product?\n\n" +
+                            "Product: " + p.getName() + "\n" +
+                            "Category: " + p.getCategory() + "\n" +
+                            "Price: $" + String.format("%.2f", p.getPrice()) + "\n\n" +
+                            "This action cannot be undone!");
             confirm.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
             confirm.showAndWait().ifPresent(btn -> {
                 if (btn == ButtonType.YES) {
                     Database.getInstance().deleteProduct(p);
                     refreshProducts(productList);
                     clearProductFields(name, category, price, stock, description);
-                    createFormattedAlert(Alert.AlertType.INFORMATION, "Success", "Product Deleted", 
-                        "Product '" + p.getName() + "' has been deleted successfully.").show();
+                    createFormattedAlert(Alert.AlertType.INFORMATION, "Success", "Product Deleted",
+                            "Product '" + p.getName() + "' has been deleted successfully.").show();
                 }
             });
         });
@@ -168,19 +175,19 @@ public class AdminDashboard {
         editProduct.setOnAction(e -> {
             Product p = productList.getSelectionModel().getSelectedItem();
             if (p == null) {
-                createFormattedAlert(Alert.AlertType.WARNING, "Selection Required", "No Product Selected", 
-                    "Please select a product from the list to edit.").show();
+                createFormattedAlert(Alert.AlertType.WARNING, "Selection Required", "No Product Selected",
+                        "Please select a product from the list to edit.").show();
                 return;
             }
             try {
                 updateProductFromFields(p, name, category, price, stock, description);
                 Database.getInstance().updateProduct(p);
                 refreshProducts(productList);
-                createFormattedAlert(Alert.AlertType.INFORMATION, "Success", "Product Updated", 
-                    "Product '" + p.getName() + "' has been updated successfully.").show();
+                createFormattedAlert(Alert.AlertType.INFORMATION, "Success", "Product Updated",
+                        "Product '" + p.getName() + "' has been updated successfully.").show();
             } catch (Exception ex) {
-                createFormattedAlert(Alert.AlertType.ERROR, "Error", "Failed to Update Product", 
-                    "An error occurred while updating the product:\n\n" + ex.getMessage()).show();
+                createFormattedAlert(Alert.AlertType.ERROR, "Error", "Failed to Update Product",
+                        "An error occurred while updating the product:\n\n" + ex.getMessage()).show();
             }
         });
 
@@ -216,11 +223,11 @@ public class AdminDashboard {
         productsContent.setPadding(new Insets(20));
         productsContent.setStyle("-fx-background-color: #ffffff;");
         productsContent.getChildren().addAll(
-            productTitle,
-            productList,
-            new Separator(),
-            productForm,
-            productButtons
+                productTitle,
+                productList,
+                new Separator(),
+                productForm,
+                productButtons
         );
 
         productsTab.setContent(productsContent);
@@ -250,19 +257,19 @@ public class AdminDashboard {
         updateStatus.setOnAction(e -> {
             Order o = orderList.getSelectionModel().getSelectedItem();
             if (o == null) {
-                createFormattedAlert(Alert.AlertType.WARNING, "Selection Required", "No Order Selected", 
-                    "Please select an order from the list to update its status.").show();
+                createFormattedAlert(Alert.AlertType.WARNING, "Selection Required", "No Order Selected",
+                        "Please select an order from the list to update its status.").show();
                 return;
             }
             if (statusBox.getValue() == null) {
-                createFormattedAlert(Alert.AlertType.WARNING, "Selection Required", "No Status Selected", 
-                    "Please select a status from the dropdown menu.").show();
+                createFormattedAlert(Alert.AlertType.WARNING, "Selection Required", "No Status Selected",
+                        "Please select a status from the dropdown menu.").show();
                 return;
             }
             Database.getInstance().updateOrderStatus(o, statusBox.getValue().name());
             refreshOrders(orderList);
-            createFormattedAlert(Alert.AlertType.INFORMATION, "Success", "Order Status Updated", 
-                "Order #" + o.getId() + " status has been updated to: " + statusBox.getValue().name()).show();
+            createFormattedAlert(Alert.AlertType.INFORMATION, "Success", "Order Status Updated",
+                    "Order #" + o.getId() + " status has been updated to: " + statusBox.getValue().name()).show();
         });
 
         HBox orderControls = new HBox(10);
@@ -272,9 +279,9 @@ public class AdminDashboard {
         ordersContent.setPadding(new Insets(20));
         ordersContent.setStyle("-fx-background-color: #ffffff;");
         ordersContent.getChildren().addAll(
-            orderTitle,
-            orderList,
-            orderControls
+                orderTitle,
+                orderList,
+                orderControls
         );
 
         ordersTab.setContent(ordersContent);
@@ -346,8 +353,8 @@ public class AdminDashboard {
             }
             customerDetails.setText(
                     "Username: " + newVal.getUsername() +
-                    " | Orders: " + newVal.getOrderHistory().size() +
-                    " | Total Spent: $" + String.format("%.2f", newVal.getTotalSpent())
+                            " | Orders: " + newVal.getOrderHistory().size() +
+                            " | Total Spent: $" + String.format("%.2f", newVal.getTotalSpent())
             );
             customerOrders.getItems().addAll(newVal.getOrderHistory());
         });
@@ -357,8 +364,8 @@ public class AdminDashboard {
         viewOrderDetails.setOnAction(e -> {
             Order o = customerOrders.getSelectionModel().getSelectedItem();
             if (o == null) {
-                createFormattedAlert(Alert.AlertType.INFORMATION, "Selection Required", "No Order Selected", 
-                    "Please select an order from the list to view its details.").show();
+                createFormattedAlert(Alert.AlertType.INFORMATION, "Selection Required", "No Order Selected",
+                        "Please select an order from the list to view its details.").show();
                 return;
             }
             StringBuilder details = new StringBuilder();
@@ -380,26 +387,26 @@ public class AdminDashboard {
         resetUserPassword.setOnAction(e -> {
             Customer c = customerList.getSelectionModel().getSelectedItem();
             if (c == null) {
-                createFormattedAlert(Alert.AlertType.WARNING, "Selection Required", "No Customer Selected", 
-                    "Please select a customer from the list to reset their password.").show();
+                createFormattedAlert(Alert.AlertType.WARNING, "Selection Required", "No Customer Selected",
+                        "Please select a customer from the list to reset their password.").show();
                 return;
             }
             // Confirm password reset
-            Alert confirm = createFormattedAlert(Alert.AlertType.CONFIRMATION, "Reset Password", 
-                "Reset Password for " + c.getUsername(),
-                "This action will reset the password for user: " + c.getUsername() + "\n\n" +
-                "Important:\n" +
-                "• The user will be required to reset their password on next login\n" +
-                "• The user must use the 'Forgot Password?' feature to set a new password\n" +
-                "• The user cannot login until they reset their password\n\n" +
-                "Continue with password reset?");
+            Alert confirm = createFormattedAlert(Alert.AlertType.CONFIRMATION, "Reset Password",
+                    "Reset Password for " + c.getUsername(),
+                    "This action will reset the password for user: " + c.getUsername() + "\n\n" +
+                            "Important:\n" +
+                            "• The user will be required to reset their password on next login\n" +
+                            "• The user must use the 'Forgot Password?' feature to set a new password\n" +
+                            "• The user cannot login until they reset their password\n\n" +
+                            "Continue with password reset?");
             confirm.getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
             confirm.showAndWait().ifPresent(btn -> {
                 if (btn == ButtonType.OK) {
                     Database.getInstance().resetPasswordByAdmin(c.getUsername());
                     createFormattedAlert(Alert.AlertType.INFORMATION, "Password Reset", "Password Reset Successful",
-                        "The password for user '" + c.getUsername() + "' has been reset successfully.\n\n" +
-                        "The user will be required to set a new password using the 'Forgot Password?' feature on their next login attempt.").show();
+                            "The password for user '" + c.getUsername() + "' has been reset successfully.\n\n" +
+                                    "The user will be required to set a new password using the 'Forgot Password?' feature on their next login attempt.").show();
                 }
             });
         });
@@ -407,18 +414,18 @@ public class AdminDashboard {
         deleteUser.setOnAction(e -> {
             Customer c = customerList.getSelectionModel().getSelectedItem();
             if (c == null) {
-                createFormattedAlert(Alert.AlertType.WARNING, "Selection Required", "No Customer Selected", 
-                    "Please select a customer from the list to delete.").show();
+                createFormattedAlert(Alert.AlertType.WARNING, "Selection Required", "No Customer Selected",
+                        "Please select a customer from the list to delete.").show();
                 return;
             }
-            Alert confirm = createFormattedAlert(Alert.AlertType.CONFIRMATION, "Delete User", 
-                "Delete User Account?",
-                "Are you sure you want to delete the following user account?\n\n" +
-                "Username: " + c.getUsername() + "\n" +
-                "Orders: " + c.getOrderHistory().size() + "\n" +
-                "Total Spent: $" + String.format("%.2f", c.getTotalSpent()) + "\n\n" +
-                "⚠ WARNING: This action cannot be undone!\n" +
-                "All associated data will be permanently deleted.");
+            Alert confirm = createFormattedAlert(Alert.AlertType.CONFIRMATION, "Delete User",
+                    "Delete User Account?",
+                    "Are you sure you want to delete the following user account?\n\n" +
+                            "Username: " + c.getUsername() + "\n" +
+                            "Orders: " + c.getOrderHistory().size() + "\n" +
+                            "Total Spent: $" + String.format("%.2f", c.getTotalSpent()) + "\n\n" +
+                            "⚠ WARNING: This action cannot be undone!\n" +
+                            "All associated data will be permanently deleted.");
             confirm.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
             confirm.showAndWait().ifPresent(btn -> {
                 if (btn == ButtonType.YES) {
@@ -426,8 +433,8 @@ public class AdminDashboard {
                     refreshCustomers(customerList);
                     customerDetails.setText("Select a customer to view details.");
                     customerOrders.getItems().clear();
-                    createFormattedAlert(Alert.AlertType.INFORMATION, "Success", "User Deleted", 
-                        "User '" + c.getUsername() + "' has been deleted successfully.").show();
+                    createFormattedAlert(Alert.AlertType.INFORMATION, "Success", "User Deleted",
+                            "User '" + c.getUsername() + "' has been deleted successfully.").show();
                 }
             });
         });
@@ -441,13 +448,13 @@ public class AdminDashboard {
         customersContent.setPadding(new Insets(20));
         customersContent.setStyle("-fx-background-color: #ffffff;");
         customersContent.getChildren().addAll(
-            customerTitle,
-            customerList,
-            customerDetails,
-            new Label("Order History:"),
-            new HBox(10, refreshOrderHistory),
-            customerOrders,
-            customerButtons
+                customerTitle,
+                customerList,
+                customerDetails,
+                new Label("Order History:"),
+                new HBox(10, refreshOrderHistory),
+                customerOrders,
+                customerButtons
         );
 
         customersTab.setContent(customersContent);

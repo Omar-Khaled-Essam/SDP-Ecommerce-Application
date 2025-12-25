@@ -2,6 +2,7 @@ package orders;
 
 import products.Product;
 import users.Customer;
+
 import java.util.*;
 
 public class Order {
@@ -22,10 +23,21 @@ public class Order {
         attach(customer);
     }
 
-    public Integer getId() { return id; }
-    public void setId(Integer id) { this.id = id; }
-    public String getCreatedAt() { return createdAt; }
-    public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
 
     public void attach(Observer o) {
         observers.add(o);
@@ -42,10 +54,21 @@ public class Order {
         notifyObservers();
     }
 
-    public String getStatus() { return status; }
-    public double getTotal() { return total; }
-    public Customer getCustomer() { return customer; }
-    public List<Product> getProducts() { return products; }
+    public String getStatus() {
+        return status;
+    }
+
+    public double getTotal() {
+        return total;
+    }
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public List<Product> getProducts() {
+        return products;
+    }
 
     @Override
     public String toString() {
