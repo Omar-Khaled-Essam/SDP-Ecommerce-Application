@@ -10,7 +10,8 @@ import users.User;
 // SOLID: DIP✅ (depends on DatabaseAdapter abstraction), SRP⚠️ (users/products/orders/reports in one facade), DIP⚠️ (Singleton/global access).
 // Patterns used in this project (excluding the DB Adapter layer):
 // - Singleton: Database is a single shared access point.
-// - Facade: Database provides a simplified API over persistence + business operations for the UI.
+// - Facade?? Not Sure: Database provides a simplified API over persistence + business operations for the UI.
+// - Adapter: DatabaseAdapter abstracts the underlying DB implementation.
 public class Database {
 
     private static Database instance = new Database();
